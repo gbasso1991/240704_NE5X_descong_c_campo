@@ -823,7 +823,7 @@ ax2.plot(temperatura_4_1, SAR_4_1, 'P-', zorder=1,label=identif_4, color=colors[
 ax2.plot(temperatura_4_2, SAR_4_2, 'P-', zorder=2,label=identif_4, color=colors[5][1])
 ax2.plot(temperatura_4_3, SAR_4_3, 'P-', zorder=3,label=identif_4, color=colors[5][2])
 
-ax2.set_xticks(np.arange(-45,25,5))
+ax2.set_xticks(np.arange(-50,30,5))
 
 # ax1.axhline(tau1.nominal_value,0,1,c='tab:red',label=f'{tau1} ns')
 # ax1.axhspan(tau1.nominal_value-tau1.std_dev,tau1.nominal_value+tau1.std_dev,alpha=0.5,color='tab:red')
