@@ -1837,20 +1837,21 @@ def lector_templog(directorio, plot=False):
         temp_CH2= pd.Series(data['T_CH2']).to_numpy(dtype=float)
         timestamp=np.array([datetime.strptime(date,'%Y/%m/%d %H:%M:%S') for date in data['Timestamp']]) 
         if plot:
-            fig, ax = plt.subplots(figsize=(10,5))
-            ax.plot(timestamp,temp_CH1,'.-',label=dir_templog.split('_')[-1]+' CH1' )
-            ax.plot(timestamp,temp_CH2,'.-',label=dir_templog.split('_')[-1]+ ' CH2')
-            ax.plot(timestamp,np.abs(temp_CH1-temp_CH2),'.-',label=rf'$\Delta$ max = {max(np.abs(temp_CH1-temp_CH2)):.1f} °C')
-            plt.grid()
-            plt.ylabel('Temperatura (ºC)')
-            fig.autofmt_xdate()
-            plt.legend(loc='best')  
-            plt.tight_layout()
-            plt.xlim(timestamp[0],timestamp[-1])
-            plt.show()
+            pass
+            # fig, ax = plt.subplots(figsize=(10,5))
+            # ax.plot(timestamp,temp_CH1,'.-',label=dir_templog.split('_')[-1]+' CH1' )
+            # ax.plot(timestamp,temp_CH2,'.-',label=dir_templog.split('_')[-1]+ ' CH2')
+            # ax.plot(timestamp,np.abs(temp_CH1-temp_CH2),'.-',label=rf'$\Delta$ max = {max(np.abs(temp_CH1-temp_CH2)):.1f} °C')
+            # plt.grid()
+            # plt.ylabel('Temperatura (ºC)')
+            # fig.autofmt_xdate()
+            # plt.legend(loc='best')  
+            # plt.tight_layout()
+            # plt.xlim(timestamp[0],timestamp[-1])
+            # plt.show()
         else:
             pass
-        return timestamp,temp_CH1, temp_CH2,fig
+        return timestamp,temp_CH1, temp_CH2
     else:
         print('No se encuentra archivo templog.csv en el directorio:',directorio)
 

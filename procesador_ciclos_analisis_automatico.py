@@ -186,7 +186,7 @@ for i in range(len(fnames_m)):
 #%% Templog
 if templog:
     try:
-        timestamp,temperatura,T_amb,fig =lector_templog(directorio,plot=True)
+        timestamp,temperatura,T_amb =lector_templog(directorio,plot=True)
         fecha_m_aux=[datetime.fromtimestamp(os.path.getmtime(path)) for path in path_m]
         delta_t_m = [(int(( t - fecha_m_aux[0]).total_seconds())) for t in fecha_m_aux] #dif en s para los archivos de muestra
 
