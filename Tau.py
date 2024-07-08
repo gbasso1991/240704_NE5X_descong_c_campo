@@ -437,7 +437,7 @@ plt.grid()
 plt.ylabel(r'$\tau$ (s)')
 plt.xlabel('Indx')
 plt.title(identif_3)
-plt.savefig('tau_'+identif_3+'.png',dpi=300)
+plt.savefig('tau_vs_T_'+identif_3+'.png',dpi=300)
 plt.show()
 #CICLOS
 archivos_ciclos_3 = [f for f in os.listdir(dir_3) if  fnmatch.fnmatch(f, '*promedio*')]
@@ -493,7 +493,7 @@ plt.grid()
 plt.ylabel(r'$\tau$ (s)')
 plt.xlabel('Indx')
 plt.title(identif_4)
-#plt.savefig('tau_'+identif_4+'.png',dpi=300)
+plt.savefig('tau_vs_T_'+identif_4+'.png',dpi=300)
 plt.show()
 #%CICLOS
 archivos_ciclos_4 = [f for f in os.listdir(dir_4) if  fnmatch.fnmatch(f, '*promedio*')]
