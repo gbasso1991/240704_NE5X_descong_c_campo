@@ -210,9 +210,7 @@ if templog:
             color = cmap(norm(temp_m[i]))
             ax.scatter(delta_t_m[i]+delta_0,temp_m[i],color=color,label=fnames_m[i].split("_")[-1].split(".")[0])
         ax.scatter(delta_0+delta_t_m[-1],temp_m[-1],marker='x',c='k',label='fondo')
-        #plt.plot(np.arange(len(T_amb)),T_amb, label= 'RT')
-        #plt.legend(ncol=4)
-        # plt.legend(loc='center',bbox_to_anchor=(0.5,-0.25),ncol=6,fancybox=True)
+
         plt.xlim(0,len(T_amb))
         plt.grid()
         plt.xlabel('$\Delta t$ (s) ')
@@ -235,6 +233,10 @@ else:
     
     
 # fig.savefig(os.path.join(output_dir,'comparativa_temps.png'),dpi=300,facecolor='w')
+#%%
+plt.plot(np.cumsum(delta_t_m),temp_m, 'o-')
+
+
 #%% Procesamiento en iteracion sobre archivos
 '''
 Ejecuto medida_cruda()
