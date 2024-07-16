@@ -215,7 +215,7 @@ if templog:
         plt.grid()
         plt.xlabel('$\Delta t$ (s) ')
         plt.ylabel('Temperatura (°C) ')
-        plt.title('Temperatura de archivos de muestra',fontsize=20)
+        plt.title('Temperatura de archivos de muestra',fontsize=18)
         plt.text(0.75,0.15,f'{frec_nombre[0]/1000:.0f} kHz',fontsize=15,bbox=dict(color='tab:orange',alpha=0.7),transform=ax.transAxes)
         plt.savefig(os.path.join(output_dir,os.path.commonprefix(fnames_m)+'_templog.png'),dpi=200,facecolor='w')
 
@@ -231,10 +231,52 @@ else:
     cmap = mpl.colormaps['jet']  #'viridis' # Crear un rango de colores basado en las temperaturas y el cmap
     norm = plt.Normalize(temp_m.min(), temp_m.max())
     
-    
 # fig.savefig(os.path.join(output_dir,'comparativa_temps.png'),dpi=300,facecolor='w')
-#%%
-plt.plot(np.cumsum(delta_t_m),temp_m, 'o-')
+#%% TRANSICION DE FASE
+from scipy.interpolate import interp1d
+t_full = timestamp-timestamp[0]
+t_full= np.array([t.total_seconds() for t in t_full])
+T_full= temperatura
+
+t_m = np.array(fecha_m_aux)-np.array(fecha_m_aux)[0]
+t_m = np.array([t.total_seconds() for t in t_m])
+T_m = temp_m
+
+tiempo_interp = np.linspace(0, t_m.max(),1000)
+interp_func = interp1d(t_m, T_m, kind='slinear')
+temperatura_interp = interp_func(tiempo_interp)
+dT_dt = np.gradient(temperatura_interp, tiempo_interp)
+filtro_T = 2     #ºC 
+filtro_dT_dt=0.5 #ºC/s
+indx=np.nonzero((np.abs(temperatura_interp)<=filtro_T)&(dT_dt <= filtro_dT_dt))
+
+indx_TF= np.nonzero((t_m > tiempo_interp[indx[0][0]]) & (t_m <= tiempo_interp[indx[0][-1]]))
+t_tf= t_m[indx_TF[0][-1]] - t_m[indx_TF[0][0]]
+
+
+fig,(ax,ax2)= plt.subplots(nrows=2,figsize=(10,8),sharex=True,constrained_layout=True)
+ax.plot(t_m,T_m , 'o-',label='Temperatura')
+ax.axvspan(tiempo_interp[indx[0][0]],tiempo_interp[indx[0][-1]],color='tab:red',alpha=0.5,label=f'T Fase (|T|<{filtro_T} ºC)',zorder=0)
+ax.plot(t_m[indx_TF],T_m[indx_TF] , 'go-')
+
+ax2.plot(tiempo_interp,dT_dt , 'o-',label='dT/dt')
+ax2.axvspan(tiempo_interp[indx[0][0]],tiempo_interp[indx[0][-1]],color='tab:red',alpha=0.5,label=f'T Fase (dT/dt <{filtro_dT_dt} ºC/s)',zorder=-2)
+
+ax2.set_xlabel('t (s)')
+ax.set_ylabel('T (ºC)')
+ax2.set_ylabel('dT/dt (ºC/s)')
+ax2.set_xlim(0,)
+for a in [ax,ax2]:
+    a.grid()
+    a.legend()
+ax.set_title('Transición de fase S-L',fontsize=18)
+plt.savefig(os.path.join(output_dir,os.path.commonprefix(fnames_m)+'_templog_TF.png'),dpi=200,facecolor='w')
+print('Duracion de la transicion Solido/Liquido:')
+print(f'{t_tf} s')
+
+print('Archivos de la transicion Solido/Liquido:')
+print(f'{fnames_m[indx_TF[0][0]]} ---> {fnames_m[indx_TF[0][-1]]}')
+
 
 
 #%% Procesamiento en iteracion sobre archivos
@@ -695,25 +737,25 @@ if Ciclo_promedio:
         M_prom_ua=M0_ua/Num_ciclos_m
         H_prom=H0/Num_ciclos_m
         M_prom=M0/Num_ciclos_m
-'''
-Exporto ciclos promedio en ASCII, primero en V.s, despues en A/m :
-| Tiempo (s) | Campo (V.s) | Magnetizacion (V.s) | Campo (A/m) |  Magnetizacion (A/m)
-'''
-ciclo_out = Table([t_prom,H_prom_ua/1e3,M_prom_ua,H_prom/1e3,M_prom])
+# '''
+# Exporto ciclos promedio en ASCII, primero en V.s, despues en A/m :
+# | Tiempo (s) | Campo (V.s) | Magnetizacion (V.s) | Campo (A/m) |  Magnetizacion (A/m)
+# '''
+# ciclo_out = Table([t_prom,H_prom_ua/1e3,M_prom_ua,H_prom/1e3,M_prom])
 
-encabezado = ['Tiempo_(s)','Campo_(V.s)', 'Magnetizacion_(V.s)','Campo_(kA/m)', 'Magnetizacion_(A/m)']
-formato = {'Tiempo_(s)':'%e' ,'Campo_(V.s)':'%e','Magnetizacion_(V.s)':'%e','Campo_(kA/m)':'%e','Magnetizacion_(A/m)':'%e'}
+# encabezado = ['Tiempo_(s)','Campo_(V.s)', 'Magnetizacion_(V.s)','Campo_(kA/m)', 'Magnetizacion_(A/m)']
+# formato = {'Tiempo_(s)':'%e' ,'Campo_(V.s)':'%e','Magnetizacion_(V.s)':'%e','Campo_(kA/m)':'%e','Magnetizacion_(A/m)':'%e'}
 
-ciclo_out.meta['comments'] = [f'Temperatura_=_{np.mean(temp_m)}',
-                                f'Concentracion g/m^3_=_{concentracion}',
-                                f'C_Vs_to_Am_M_A/Vsm_=_{C_Vs_to_Am_magnetizacion}',
-                                f'pendiente_HvsI_1/m_=_{pendiente_HvsI}',
-                                f'ordenada_HvsI_A/m_=_{ordenada_HvsI}',
-                                f'frecuencia_Hz_=_{frec_final_m}',
-                                f'Promedio de {Num_ciclos_m} ciclos\n']
+# ciclo_out.meta['comments'] = [f'Temperatura_=_{np.mean(temp_m)}',
+#                                 f'Concentracion g/m^3_=_{concentracion}',
+#                                 f'C_Vs_to_Am_M_A/Vsm_=_{C_Vs_to_Am_magnetizacion}',
+#                                 f'pendiente_HvsI_1/m_=_{pendiente_HvsI}',
+#                                 f'ordenada_HvsI_A/m_=_{ordenada_HvsI}',
+#                                 f'frecuencia_Hz_=_{frec_final_m}',
+#                                 f'Promedio de {Num_ciclos_m} ciclos\n']
 
-output_file = os.path.join(output_dir, os.path.commonprefix(list(fnames_m)) + '_ciclo_promedio_H_M.txt')# Especificar la ruta completa del archivo de salida
-ascii.write(ciclo_out,output_file,names=encabezado,overwrite=True,delimiter='\t',formats=formato)
+# output_file = os.path.join(output_dir, os.path.commonprefix(list(fnames_m)) + '_ciclo_promedio_H_M.txt')# Especificar la ruta completa del archivo de salida
+# ascii.write(ciclo_out,output_file,names=encabezado,overwrite=True,delimiter='\t',formats=formato)
 
 
 #%% PLOTEO TODOS LOS CICLOS FILTRADOS IMPAR
@@ -760,6 +802,7 @@ tau_all= ufloat(np.mean(Tau),np.std(Tau))
 
 if templog:
     col1 = [t.strftime("%d/%m/%Y %H:%M:%S") for t in time_m]
+
 else:
     col1= np.zeros_like(fnames_m)
 
@@ -809,7 +852,8 @@ resultados_out.meta['comments'] = ['Configuracion:',
                               f'SAR_W/g_=_{SAR_all:.2f}',
                               f'Hc_kA/m_=_{Coercitividad_all:.2f}',
                               f'Mr_A/m_=_{Remanencia_all:.2f}',
-                              f'Suceptibilidad_a_M=0_=_{xi_all:.4f}\n']
+                              f'Suceptibilidad_a_M=0_=_{xi_all:.4f}',
+                              f'Transicion_de_fase_=_{t_tf}\n']
 
 # ascii.write(resultados_out,os.path.commonprefix(fnames_m)+'_resultados.txt',
 #             names=encabezado,overwrite=True,delimiter='\t',formats=formato)
